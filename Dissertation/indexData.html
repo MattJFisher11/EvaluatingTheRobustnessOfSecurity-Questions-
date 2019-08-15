@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Evaluating the robustness of security questions</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link href="styleData.css" rel="stylesheet">
+</head>
+<body>
+<script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '2284597488493309',
+            cookie     : true,
+            xfbml      : true,
+            version    : 'v2.8'
+        });
+        FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+        });
+    };
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    function statusChangeCallback(response){
+        if(response.status === 'connected'){
+            ScrapeAPI();
+        }
+    }
+    function checkLoginState() {
+        FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+        });
+    }
+    function ScrapeAPI(){
+        FB.api('/me?fields=music,television,inspirational_people,books,events,picture.width(500).height(500),name,email,birthday,location,relationship_status,favorite_teams,albums,about,tagged_places,age_range,gender,hometown,photos,likes', function(response){
+            if(response && !response.error){
+                //console.log(response);
+                SecurityQuestionsData(response);
+            }
+        })
+    }
+    function SecurityQuestionsData(user){
+
+        var team = user.favorite_teams;
+        for (i = 0; i < team.length; i++){
+            if (team[i].name != null)
+            {
+                var teams = team[i].name;
+                var newLine = "<br>";
+                var seg = teams + newLine;
+                document.getElementById('ScrapedDataTeams').innerHTML += seg ;
+            }
+        }
+
+        var music = user.music.data;
+        for (i = 0; i < music.length; i++){
+            var singer = music[i].name;
+            var newLine = "<br>";
+            var seg = singer + newLine;
+            document.getElementById('ScrapedDataSinger').innerHTML += seg ;
+        }
+
+        var films = user.television.data;
+        for (i = 0; i < films.length; i++){
+            var film = films[i].name;
+            var newLine = "<br>";
+            var seg = film + newLine;
+            document.getElementById('ScrapedDataFilms').innerHTML += seg ;
+        }
+
+        var places = user.tagged_places.data;
+        for (i = 0; i < places.length; i++){
+            //var time = places[i].created_time;
+            var country = places[i].place.location.country;
+            var city = places[i].place.location.city;
+            //var street = places[i].place.location.street;
+            var zip = places[i].place.location.zip;
+            //var latitude = places[i].place.location.latitude;
+            //var longitude = places[i].place.location.longitude;
+            var newLine = "<br>";
+            var com = ", "
+            var seg =  country + com + city + com + zip +newLine;
+            document.getElementById('ScrapedDataTaggedLocation').innerHTML += seg ;
+
+            // console.log(places[i].place.location.city);
+            // console.log(places[i].place.location.country);
+            // console.log(places[i].place.location.latitude);
+            // console.log(places[i].place.location.longitude);
+        }
+
+        var pastime = user.events.data;
+        for (i = 0; i < pastime.length; i++){
+            var pastimeName = pastime[i].name;
+            var newLine = "<br>";
+            var seg = pastimeName + newLine;
+            document.getElementById('ScrapedDataTaggedPastime').innerHTML += seg ;
+        }
+
+        var book = user.books.data;
+        for (i = 0; i < book.length; i++){
+            var books = book[i].name;
+            var newLine = "<br>";
+            var seg = books + newLine;
+            document.getElementById('ScrapedDataBooks').innerHTML += seg ;
+        }
+
+        var test = user.picture;
+
+        console.log(test);
+
+        let ScrapedDataName = `${user.name}`;
+        let ScrapedDataBirthday = `${user.birthday}`;
+        let ScrapedDataEmail = `${user.email}`;
+        let ScrapedDataProfile = `${user.picture.data.url}`;
+        let ScrapedDataLocation = `${user.location.name}`;
+
+        document.getElementById('ScrapedDataName').innerHTML = ScrapedDataName;
+        document.getElementById('ScrapedDataName2').innerHTML = ScrapedDataName;
+        document.getElementById('ScrapedDataEmail').innerHTML = ScrapedDataEmail;
+        document.getElementById('ScrapedDataBirthday').innerHTML = ScrapedDataBirthday;
+        document.getElementById('ScrapedDataProfile').src = ScrapedDataProfile;
+        document.getElementById('ScrapedDataLocation').innerHTML = ScrapedDataLocation;
+
+
+
+    }
+    function logout(){
+        FB.logout(function(response){
+            window.location.href="index.html";
+        });
+    }
+</script>
+
+<div class="container">
+
+    <h2 id="ScrapedDataName" class="text-center">Name: </h2>
+    <p id="ScrapedDataName2" class="text-center">User ID: </p>
+    <p id="ScrapedDataEmail" class="text-center">Email: </p>
+    <p id="ScrapedDataBirthday" class="text-center">Birthday: </p>
+    <div class="text-center" id="Logout">
+        <button type="button" class="btn btn-outline-primary" onclick="logout()">Logout</button>
+    </div>
+    <div class="text-center">
+        <img id="ScrapedDataProfile" src="ReplacedByUrl" alt="ProfilePictureOfUser">
+    </div>
+    <table class="table">
+        <thead class="text-center">
+        <tr>
+            <th>Security Questions?</th>
+            <th>Potential Answers</th>
+        </tr>
+        </thead>
+        <tbody class="text-center">
+        <tr>
+            <td>Where were you born?</td>
+            <td id="ScrapedDataLocation"></td>
+        </tr>
+        <tr>
+            <td>What is your favourite town?</td>
+            <td id="ScrapedDataTaggedLocation"></td>
+        </tr>
+        <tr>
+            <td>What is your favourite sports team?</td>
+            <td id = "ScrapedDataTeams"></td>
+        </tr>
+        <tr>
+            <td>What was the name of your first School?</td>
+            <td>Manual</td>
+        <tr>
+            <td>What was your first phone number?</td>
+            <td>Manual</td>
+        </tr>
+        <tr>
+            <td>What is your favourite pastime?</td>
+            <td id="ScrapedDataTaggedPastime"></td>
+        </tr>
+        <tr>
+            <td>Where was your first job?</td>
+            <td>Manual</td>
+        </tr>
+        <tr>
+            <td>What is your favourite book?</td>
+            <td id = "ScrapedDataBooks">Manual</td>
+        </tr>
+        <tr>
+            <td>What is your favourite singer?</td>
+            <td id = "ScrapedDataSinger"></td>
+        </tr>
+        <tr>
+            <td>What is your favourite film?</td>
+            <td id = "ScrapedDataFilms"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
